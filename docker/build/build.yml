@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  system:
+    restart: always
+    build: .
+    image: raptor_info_chat_img

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h3>Raptor Info Chat</h3>
+        </div>
+        <div class="chat-messages" id="messages">
+            <!-- メッセージがここに表示される -->
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="メッセージを入力..." id="message-input">
+            <button id="send-button">送信</button>
+        </div>
+    </div>
+    <script>
+        let previousMessageCount = 0;
+
+        function loadMessages() {
+            fetch('/messages')
+                .then(response => response.json())
+                .then(data => {
+                    const messagesContainer = document.getElementById('messages');
+                    const currentMessageCount = data.length;
+
+                    // メッセージが追加された場合のみスクロールする
+                    const shouldScroll = currentMessageCount > previousMessageCount;
+
+                    messagesContainer.innerHTML = '';
+                    data.forEach(msg => {
+                        const messageElement = document.createElement('div');
+                        messageElement.className = 'message';
+
+                        const textElement = document.createElement('div');
+                        textElement.textContent = msg.message;
+
+                        const timestampElement = document.createElement('div');
+                        timestampElement.className = 'timestamp';
+                        timestampElement.textContent = msg.timestamp;
+
+                        messageElement.appendChild(textElement);
+                        messageElement.appendChild(timestampElement);
+                        messagesContainer.appendChild(messageElement);
+                    });
+
+                    if (shouldScroll) {
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
+
+                    // 前回のメッセージ数を更新
+                    previousMessageCount = currentMessageCount;
+                });
+        }
+
+        document.getElementById('send-button').addEventListener('click', () => {
+            const input = document.getElementById('message-input');
+            const message = input.value;
+            fetch('/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message }),
+            }).then(() => {
+                input.value = '';
+                loadMessages();
+            });
+        });
+
+        setInterval(loadMessages, 1000); // 1秒ごとにメッセージをリロード
+        loadMessages();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  chat:
+    restart: always
+    image: raptor_info_chat_img
+    environment:
+      - TZ=Asia/Tokyo
+
+    container_name: 'raptor_chat'
+    volumes:
+      - ../../src:/home/nomura/
+    command: >
+      bash -c "
+        python3 app.py
+        wait
+        bash
+      "
+    networks:
+      - raptorlink
+    ports:
+      - "5000:5000"
+    tty: true
+
+networks:
+  raptorlink:
+    external: true
+    name: "RaptorLink"
