@@ -75,6 +75,15 @@ body {
     white-space: pre-wrap;
 }
 
+.message.info {
+    background-color: #dcf8c6; /* info用の色 */
+}
+
+.message.error {
+    background-color: #f8d7da; /* error用の色 */
+    color: #721c24; /* テキストカラーも変更 */
+}
+
 .timestamp {
     font-size: 0.8em;
     color: #888888;

@@ -7,7 +7,7 @@ app = Flask(__name__)
 def init_db():
     conn = sqlite3.connect('chat.db')
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY, message TEXT, timestamp TEXT)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY, message TEXT, timestamp TEXT, type TEXT)''')
     conn.commit()
     conn.close()
 
@@ -18,10 +18,11 @@ def index():
 @app.route('/send', methods=['POST'])
 def send_message():
     message = request.json.get('message')
+    message_type = request.json.get('type', 'info')  # デフォルトで 'info' とする
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     conn = sqlite3.connect('chat.db')
     c = conn.cursor()
-    c.execute('INSERT INTO messages (message, timestamp) VALUES (?, ?)', (message, timestamp))
+    c.execute('INSERT INTO messages (message, timestamp, type) VALUES (?, ?, ?)', (message, timestamp, message_type))
     conn.commit()
     conn.close()
     return jsonify({"status": "Message received"}), 200
@@ -30,8 +31,8 @@ def send_message():
 def get_messages():
     conn = sqlite3.connect('chat.db')
     c = conn.cursor()
-    c.execute('SELECT message, timestamp FROM messages')
-    messages = [{"message": row[0], "timestamp": row[1]} for row in c.fetchall()]
+    c.execute('SELECT message, timestamp, type FROM messages')
+    messages = [{"message": row[0], "timestamp": row[1], "type": row[2]} for row in c.fetchall()]
     conn.close()
     return jsonify(messages), 200
 

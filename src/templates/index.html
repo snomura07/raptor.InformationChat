@@ -21,7 +21,7 @@
         </div>
     </div>
     <script>
-        let previousMessageCount = 0;
+        let previousMessageCount = 0; // ここで初期化します
 
         function loadMessages() {
             fetch('/messages')
@@ -29,14 +29,13 @@
                 .then(data => {
                     const messagesContainer = document.getElementById('messages');
                     const currentMessageCount = data.length;
-
-                    // メッセージが追加された場合のみスクロールする
                     const shouldScroll = currentMessageCount > previousMessageCount;
 
                     messagesContainer.innerHTML = '';
                     data.forEach(msg => {
                         const messageElement = document.createElement('div');
-                        messageElement.className = 'message';
+                        const messageType = msg.type || 'info'; // デフォルトを 'info' に設定
+                        messageElement.className = 'message ' + messageType;
 
                         const textElement = document.createElement('div');
                         textElement.textContent = msg.message;
@@ -54,20 +53,20 @@
                         messagesContainer.scrollTop = messagesContainer.scrollHeight;
                     }
 
-                    // 前回のメッセージ数を更新
-                    previousMessageCount = currentMessageCount;
+                    previousMessageCount = currentMessageCount; // メッセージ数を更新
                 });
         }
 
         document.getElementById('send-button').addEventListener('click', () => {
             const input = document.getElementById('message-input');
             const message = input.value;
+            const messageType = 'info'; // ここで 'info' か 'error' を選択するロジックを追加できます
             fetch('/send', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message }),
+                body: JSON.stringify({ message, type: messageType }),
             }).then(() => {
                 input.value = '';
                 loadMessages();
@@ -87,5 +86,7 @@
         setInterval(loadMessages, 1000); // 1秒ごとにメッセージをリロード
         loadMessages();
     </script>
+
+
 </body>
 </html>
