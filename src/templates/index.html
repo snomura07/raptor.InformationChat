@@ -10,6 +10,7 @@
     <div class="chat-container">
         <div class="chat-header">
             <h3>Raptor Info Chat</h3>
+            <button id="delete-button" class="delete-button">全削除</button>
         </div>
         <div class="chat-messages" id="messages">
             <!-- メッセージがここに表示される -->
@@ -73,9 +74,18 @@
             });
         });
 
+        document.getElementById('delete-button').addEventListener('click', () => {
+            if (confirm('本当に全メッセージを削除しますか？')) {
+                fetch('/delete_all', {
+                    method: 'DELETE',
+                }).then(() => {
+                    loadMessages();
+                });
+            }
+        });
+
         setInterval(loadMessages, 1000); // 1秒ごとにメッセージをリロード
         loadMessages();
     </script>
-
 </body>
 </html>

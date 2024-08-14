@@ -35,6 +35,15 @@ def get_messages():
     conn.close()
     return jsonify(messages), 200
 
+@app.route('/delete_all', methods=['DELETE'])
+def delete_all_messages():
+    conn = sqlite3.connect('chat.db')
+    c = conn.cursor()
+    c.execute('DELETE FROM messages')
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "All messages deleted"}), 200
+
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=5000)
