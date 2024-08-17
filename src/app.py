@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, render_template
+from flask_socketio import SocketIO, emit
 import sqlite3
 import datetime
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 def init_db():
     conn = sqlite3.connect('chat.db')
@@ -20,11 +22,15 @@ def send_message():
     message = request.json.get('message')
     message_type = request.json.get('type', 'info')  # デフォルトで 'info' とする
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     conn = sqlite3.connect('chat.db')
     c = conn.cursor()
     c.execute('INSERT INTO messages (message, timestamp, type) VALUES (?, ?, ?)', (message, timestamp, message_type))
     conn.commit()
     conn.close()
+
+    # 新しいメッセージが来たらクライアントに通知
+    socketio.emit('new_message', {'message': message, 'timestamp': timestamp, 'type': message_type})
     return jsonify({"status": "Message received"}), 200
 
 @app.route('/messages', methods=['GET'])
@@ -38,13 +44,17 @@ def get_messages():
 
 @app.route('/delete_all', methods=['DELETE'])
 def delete_all_messages():
-    conn = sqlite3.connect('chat.db')
-    c = conn.cursor()
-    c.execute('DELETE FROM messages')
-    conn.commit()
-    conn.close()
-    return jsonify({"status": "All messages deleted"}), 200
+    try:
+        conn = sqlite3.connect('chat.db')
+        c = conn.cursor()
+        c.execute('DELETE FROM messages')
+        conn.commit()
+        conn.close()
+        socketio.emit('all_deleted')
+        return jsonify({"status": "All messages deleted"}), 200
+    except Exception as e:
+        return jsonify({"status": "Error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000)

@@ -1,6 +1,6 @@
 FROM python:3.10
 
-RUN pip3 install Flask
+RUN pip3 install Flask flask-socketio
 
 # add sudo user
 RUN groupadd -g 1000 developer && \
