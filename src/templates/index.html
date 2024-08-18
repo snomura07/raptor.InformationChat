@@ -9,8 +9,18 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
+            <div class="menu-icon">
+                <img src="{{ url_for('static', filename='menu_icon.png') }}" alt="Menu" id="menu-button">
+            </div>
             <h3>Raptor Info Chat</h3>
             <button id="delete-button" class="delete-button">全削除</button>
+        </div>
+        <div id="menu-list" class="menu-list">
+            <ul>
+                <li><a href="/page1">Page 1</a></li>
+                <li><a href="/page2">Page 2</a></li>
+                <li><a href="/page3">Page 3</a></li>
+            </ul>
         </div>
         <div class="chat-messages" id="messages">
             <!-- メッセージがここに表示される -->
@@ -99,6 +109,21 @@
         // WebSocketの接続を初期化
         socket.on('connect', function() {
             console.log('WebSocket connection established');
+        });
+
+        // メニューの表示/非表示を切り替える
+        document.getElementById('menu-button').addEventListener('click', () => {
+            const menuList = document.getElementById('menu-list');
+            menuList.classList.toggle('show');
+        });
+
+        // メニュー外をクリックしたときにメニューを閉じる
+        window.addEventListener('click', function(event) {
+            const menuList = document.getElementById('menu-list');
+            const menuButton = document.getElementById('menu-button');
+            if (!menuButton.contains(event.target) && !menuList.contains(event.target)) {
+                menuList.classList.remove('show');
+            }
         });
     </script>
 </body>

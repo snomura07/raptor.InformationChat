@@ -33,6 +33,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 999; /* メニューの下に来るように調整 */
 }
 
 .delete-button {
@@ -118,4 +119,49 @@ body {
     cursor: pointer;
     outline: none;
     box-sizing: border-box;
+}
+
+.menu-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.menu-icon img {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.menu-list {
+    display: block; /* displayをblockにする */
+    position: fixed; /* メニューを固定 */
+    top: 0;
+    left: 0;
+    width: 250px; /* メニューの幅 */
+    height: 100%; /* 画面全体の高さ */
+    background-color: #ffffff;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding-top: 60px; /* ヘッダーの下に配置するための余白 */
+    transition: transform 0.3s ease;
+    transform: translateX(-100%); /* 初期状態で画面外に隠す */
+    pointer-events: none; /* 初期状態ではクリックを無効に */
+}
+
+.menu-list.show {
+    transform: translateX(0); /* 表示時にスライドイン */
+    pointer-events: auto; /* 表示時にはクリックを有効に */
+}
+
+.menu-list li a:hover {
+    background-color: #f0f0f0;
+}
+
+.menu-list ul {
+    list-style-type: none; /* リストスタイルを削除 */
+    padding: 0;
+    margin: 0;
 }

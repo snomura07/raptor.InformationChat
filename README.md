@@ -1,11 +1,11 @@
 ## APIコール
 
 ```
-curl -X POST -H "Content-Type: application/json" -d '{"message": new message", "type": "info"}' http://localhost:5000/send
+curl -X POST -H "Content-Type: application/json" -d '{"message": "new message", "type": "info"}' http://localhost:5000/send
 
 ```
 ```
-curl -X POST -H "Content-Type: application/json" -d '{"message": new message", "type": "info"}' http://chat:5000/send
+curl -X POST -H "Content-Type: application/json" -d '{"message": "new message", "type": "info"}' http://chat:5000/send
 ```
 
 ## raptor.mainからの接続
