@@ -1,6 +1,11 @@
 FROM python:3.10
 
-RUN pip3 install Flask flask-socketio
+RUN apt update && apt install -y \
+    sudo \
+    ffmpeg \
+    libzmq3-dev
+
+RUN pip3 install Flask flask-socketio pyzmq
 
 # add sudo user
 RUN groupadd -g 1000 developer && \
