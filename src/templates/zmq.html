@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZMQ Messages</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>ZeroMQ Messages</h1>
+    <ul id="messages"></ul>
+
+    <script>
+        var socket = io();
+
+        socket.on('zmq_message', function(data) {
+            var li = document.createElement("li");
+            li.appendChild(document.createTextNode(data.timestamp + ": " + data.message + " (" + data.type + ")"));
+            document.getElementById("messages").appendChild(li);
+        });
+    </script>
+</body>
+</html>

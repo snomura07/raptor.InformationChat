@@ -22,6 +22,22 @@ services:
       - "5000:5000"
     tty: true
 
+  dev:
+    restart: always
+    image: raptor_info_chat_img
+    environment:
+      - TZ=Asia/Tokyo
+
+    container_name: 'raptor_chat_dev'
+    volumes:
+      - ../../src:/home/nomura/
+    command: >
+      bash -c "
+        wait
+        bash
+      "
+    tty: true
+
 networks:
   raptorlink:
     external: true

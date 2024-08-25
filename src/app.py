@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO, emit
 import sqlite3
 import datetime
+import threading
+import zmq
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -55,6 +57,27 @@ def delete_all_messages():
     except Exception as e:
         return jsonify({"status": "Error", "message": str(e)}), 500
 
+@app.route('/zmq', methods=['GET'])
+def zmq_page():
+    return render_template('zmq.html')
+
+def zmq_server():
+    context = zmq.Context()
+    socket = context.socket(zmq.SUB)
+    socket.bind("tcp://*:5001")
+    topic = "ZIMAGE"
+    socket.setsockopt_string(zmq.SUBSCRIBE, topic)  # サブスクライブするトピックを設定
+
+    while True:
+        message = socket.recv_string()
+        print(f"Received message: {message}")
+
+        # メッセージをパースして必要に応じて処理
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        socketio.emit('zmq_message', {'message': message, 'timestamp': timestamp, 'type': 'zmq'})
+
 if __name__ == '__main__':
     init_db()
+    zmq_thread = threading.Thread(target=zmq_server)
+    zmq_thread.start()
     socketio.run(app, host='0.0.0.0', port=5000)
