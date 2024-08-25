@@ -4,16 +4,11 @@ import sqlite3
 import datetime
 import threading
 import zmq
+from dbTools.RaptorDB import RaptorDB
 
-app = Flask(__name__)
+app      = Flask(__name__)
 socketio = SocketIO(app)
-
-def init_db():
-    conn = sqlite3.connect('chat.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY, message TEXT, timestamp TEXT, type TEXT)''')
-    conn.commit()
-    conn.close()
+raptorDB = RaptorDB()
 
 @app.route('/')
 def index():
@@ -25,11 +20,7 @@ def send_message():
     message_type = request.json.get('type', 'info')  # デフォルトで 'info' とする
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    conn = sqlite3.connect('chat.db')
-    c = conn.cursor()
-    c.execute('INSERT INTO messages (message, timestamp, type) VALUES (?, ?, ?)', (message, timestamp, message_type))
-    conn.commit()
-    conn.close()
+    raptorDB.chatTable.insert(message, message_type)
 
     # 新しいメッセージが来たらクライアントに通知
     socketio.emit('new_message', {'message': message, 'timestamp': timestamp, 'type': message_type})
@@ -37,21 +28,14 @@ def send_message():
 
 @app.route('/messages', methods=['GET'])
 def get_messages():
-    conn = sqlite3.connect('chat.db')
-    c = conn.cursor()
-    c.execute('SELECT message, timestamp, type FROM messages')
-    messages = [{"message": row[0], "timestamp": row[1], "type": row[2]} for row in c.fetchall()]
-    conn.close()
+    res = raptorDB.chatTable.selectAll()
+    messages = [{"id":row[0], "message": row[1], "type": row[2], "timestamp": row[3]} for row in res]
     return jsonify(messages), 200
 
 @app.route('/delete_all', methods=['DELETE'])
 def delete_all_messages():
     try:
-        conn = sqlite3.connect('chat.db')
-        c = conn.cursor()
-        c.execute('DELETE FROM messages')
-        conn.commit()
-        conn.close()
+        raptorDB.chatTable.delete()
         socketio.emit('all_deleted')
         return jsonify({"status": "All messages deleted"}), 200
     except Exception as e:
@@ -77,7 +61,8 @@ def zmq_server():
         socketio.emit('zmq_message', {'message': message, 'timestamp': timestamp, 'type': 'zmq'})
 
 if __name__ == '__main__':
-    init_db()
+    raptorDB.init()
+
     zmq_thread = threading.Thread(target=zmq_server)
     zmq_thread.start()
     socketio.run(app, host='0.0.0.0', port=5000)
