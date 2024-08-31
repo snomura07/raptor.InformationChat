@@ -1,12 +1,3 @@
-const socket = io();
-socket.on('new_message', function(data) {
-    addMessage(data);
-});
-
-socket.on('all_deleted', function() {
-    document.getElementById('messages').innerHTML = '';
-});
-
 function addMessage(msg) {
     const messagesContainer = document.getElementById('messages');
 
@@ -45,6 +36,7 @@ function loadMessages() {
 // ページロード時にメッセージを読み込む
 window.onload = function() {
     loadMessages();
+    setInterval(loadMessages, 1000);  // 1秒ごとにメッセージを更新
 };
 
 document.getElementById('send-button').addEventListener('click', () => {
@@ -59,6 +51,7 @@ document.getElementById('send-button').addEventListener('click', () => {
         body: JSON.stringify({ message, type: messageType }),
     }).then(() => {
         input.value = '';
+        loadMessages();  // メッセージを再読み込み
     });
 });
 
@@ -70,11 +63,6 @@ document.getElementById('delete-button').addEventListener('click', () => {
             document.getElementById('messages').innerHTML = '';
         }).catch(error =>console.error('Error:', error));
     }
-});
-
-// WebSocketの接続を初期化
-socket.on('connect', function() {
-    console.log('WebSocket connection established');
 });
 
 // メニューの表示/非表示を切り替える

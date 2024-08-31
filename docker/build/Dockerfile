@@ -5,7 +5,10 @@ RUN apt update && apt install -y \
     ffmpeg \
     libzmq3-dev
 
-RUN pip3 install Flask flask-socketio pyzmq
+RUN pip3 install \
+    Flask \
+    pyzmq \
+    uwsgi
 
 # add sudo user
 RUN groupadd -g 1000 developer && \

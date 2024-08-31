@@ -10,9 +10,10 @@ services:
     container_name: 'raptor_chat'
     volumes:
       - ../../src:/home/nomura/
+      - ../../log:/var/log/uwsgi:rw
     command: >
       bash -c "
-        python3 app.py
+        uwsgi --ini uwsgi/uwsgi.ini
         wait
         bash
       "
@@ -31,11 +32,16 @@ services:
     container_name: 'raptor_chat_dev'
     volumes:
       - ../../src:/home/nomura/
+      - ../../log:/var/log/uwsgi:rw
     command: >
       bash -c "
         wait
         bash
       "
+    networks:
+      - raptorlink
+    ports:
+      - "5000:5000"
     tty: true
 
 networks:

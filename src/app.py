@@ -1,14 +1,13 @@
 from flask import Flask, request, jsonify, render_template
-from flask_socketio import SocketIO, emit
 import sqlite3
 import datetime
 import threading
 import zmq
 from dbTools.RaptorDB import RaptorDB
 
-app      = Flask(__name__)
-socketio = SocketIO(app)
+app = Flask(__name__)
 raptorDB = RaptorDB()
+raptorDB.init()
 
 @app.route('/')
 def index():
@@ -22,8 +21,7 @@ def send_message():
 
     raptorDB.chatTable.insert(message, message_type)
 
-    # 新しいメッセージが来たらクライアントに通知
-    socketio.emit('new_message', {'message': message, 'timestamp': timestamp, 'type': message_type})
+    # クライアントからの新しいメッセージを保存
     return jsonify({"status": "Message received"}), 200
 
 @app.route('/messages', methods=['GET'])
@@ -36,7 +34,6 @@ def get_messages():
 def delete_all_messages():
     try:
         raptorDB.chatTable.delete()
-        socketio.emit('all_deleted')
         return jsonify({"status": "All messages deleted"}), 200
     except Exception as e:
         return jsonify({"status": "Error", "message": str(e)}), 500
@@ -58,11 +55,10 @@ def zmq_server():
 
         # メッセージをパースして必要に応じて処理
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        socketio.emit('zmq_message', {'message': message, 'timestamp': timestamp, 'type': 'zmq'})
+
 
 if __name__ == '__main__':
     raptorDB.init()
-
     zmq_thread = threading.Thread(target=zmq_server)
     zmq_thread.start()
-    socketio.run(app, host='0.0.0.0', port=5000)
+    # app.run(host='0.0.0.0', port=5000)
