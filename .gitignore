@@ -2,3 +2,4 @@ src/chat.db
 __pycache__
 .cache
 .local
+docker/run/.env
