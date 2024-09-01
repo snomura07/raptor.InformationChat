@@ -8,7 +8,8 @@ RUN apt update && apt install -y \
 RUN pip3 install \
     Flask \
     pyzmq \
-    uwsgi
+    uwsgi \
+    openai
 
 # add sudo user
 RUN groupadd -g 1000 developer && \

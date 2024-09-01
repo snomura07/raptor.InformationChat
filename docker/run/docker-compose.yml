@@ -6,7 +6,8 @@ services:
     image: raptor_info_chat_img
     environment:
       - TZ=Asia/Tokyo
-
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}
     container_name: 'raptor_chat'
     volumes:
       - ../../src:/home/nomura/
@@ -28,7 +29,8 @@ services:
     image: raptor_info_chat_img
     environment:
       - TZ=Asia/Tokyo
-
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}
     container_name: 'raptor_chat_dev'
     volumes:
       - ../../src:/home/nomura/
