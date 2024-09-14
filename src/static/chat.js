@@ -4,6 +4,7 @@ function addMessage(msg) {
     const messageElement = document.createElement('div');
     const messageType = msg.type || 'info';
     messageElement.className = 'message ' + messageType;
+    messageElement.id = msg.id || '';  // IDを追加
 
     const textElement = document.createElement('div');
     textElement.textContent = msg.message;
@@ -36,13 +37,27 @@ function loadMessages() {
 // ページロード時にメッセージを読み込む
 window.onload = function() {
     loadMessages();
-    setInterval(loadMessages, 1000);  // 1秒ごとにメッセージを更新
+    loadMessagesInterval = setInterval(loadMessages, 1000);  // 1秒ごとにメッセージを更新
 };
 
 document.getElementById('send-button').addEventListener('click', () => {
     const input = document.getElementById('message-input');
     const message = input.value;
-    const messageType = 'info'; // ここで 'info' か 'error' を選択するロジックを追加できます
+    const messageType = 'sent';
+
+    // 入力されたメッセージをまず表示
+    const userMessage = {
+        message: message,
+        type: messageType,
+        timestamp: formatDate(new Date())
+    };
+    addMessage(userMessage);  // ユーザーが送信したメッセージをチャットに追加
+    input.value = '';  // 入力フィールドをクリア
+
+    // 入力フィールドをクリア
+    input.value = '';
+    clearInterval(loadMessagesInterval);  // メッセージ送信中はリロードを一時停止
+
     fetch('/send', {
         method: 'POST',
         headers: {
@@ -50,10 +65,55 @@ document.getElementById('send-button').addEventListener('click', () => {
         },
         body: JSON.stringify({ message, type: messageType }),
     }).then(() => {
-        input.value = '';
-        loadMessages();  // メッセージを再読み込み
+        // 「...」をinfoメッセージとして表示
+        const temporaryMessageId = 'temp-info-' + Date.now();
+        const temporaryMessage = {
+            id: temporaryMessageId,
+            message: '...',
+            type: 'info',
+            timestamp: new Date().toISOString()
+        };
+        addMessage(temporaryMessage);
+
+        // /send_command APIを呼び出す
+        return fetch('/send_command', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message, type: messageType }),
+        }).then(() => {
+            console.log('コマンドが正常に送信されました');
+            // 一時メッセージを削除
+            removeTemporaryMessage(temporaryMessageId);
+            // メッセージを再読み込み
+            loadMessages();
+        }).catch(error => {
+            console.error('Error sending command:', error);
+            removeTemporaryMessage(temporaryMessageId);  // エラー時にも削除
+        });
+    }).catch(error => {
+        console.error('Error sending message:', error);
     });
 });
+
+function formatDate(date) {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);  // 月は0始まりなので+1
+    const day = ('0' + date.getDate()).slice(-2);
+    const hours = ('0' + date.getHours()).slice(-2);
+    const minutes = ('0' + date.getMinutes()).slice(-2);
+    const seconds = ('0' + date.getSeconds()).slice(-2);
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+// 一時メッセージを削除する関数
+function removeTemporaryMessage(id) {
+    const messageElement = document.getElementById(id);
+    if (messageElement) {
+        messageElement.remove();  // メッセージを削除
+    }
+}
 
 document.getElementById('delete-button').addEventListener('click', () => {
     if (confirm('本当に全メッセージを削除しますか？')) {

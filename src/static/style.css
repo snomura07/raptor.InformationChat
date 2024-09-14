@@ -60,6 +60,8 @@ body {
     overflow-y: auto;
     background-color: #e5ddd5;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .message {
@@ -77,12 +79,19 @@ body {
 }
 
 .message.info {
-    background-color: #dcf8c6; /* info用の色 */
+    background-color: #f8fff2; /* info用の色 */
+    align-self: flex-start;  /* 左側に配置 */
 }
 
 .message.error {
     background-color: #f8d7da; /* error用の色 */
     color: #721c24; /* テキストカラーも変更 */
+    align-self: flex-start;  /* 左側に配置 */
+}
+
+.message.sent {
+    background-color: #dcf8c6; /* sent用の色 */
+    align-self: flex-end;  /* 右側に配置 */
 }
 
 .timestamp {
@@ -145,7 +154,7 @@ body {
     padding-top: 60px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
     transform: translateX(-100%); /* 初期状態で隠す */
-    pointer-events: none;    
+    pointer-events: none;
 }
 
 .menu-list.show {

@@ -43,10 +43,11 @@ class Assistant():
             messages = self.client.beta.threads.messages.list(thread_id=self.thread.id)
             assistantRes = messages.data[0].content[0].text.value
             print(f"Assistant status: {retrievedRun.status} , res: {assistantRes}")
+            return assistantRes
+
 
 if __name__ == "__main__":
     assistant = Assistant()
     assistant.createAndPoll('No14のポートをINPUTに')
     time.sleep(10)
     assistant.createAndPoll('No15のポートをOUTPUTに')
-    

@@ -7,13 +7,13 @@ class Zclient:
         self.socket.connect(f"tcp://{ip}:{port}")
         self.topic = topic
 
-    def send(self, msg):
+    def request(self, msg):
         # Send a message to the server with a topic
         self.socket.send_string(f"{self.topic}${msg}")
 
         # Wait for the server's reply
         reply = self.socket.recv_string()
-        print(f"Received reply: {reply}")
+        return reply
 
     def close(self):
         self.socket.close()
@@ -23,5 +23,6 @@ class Zclient:
         self.close()
 
 if __name__ == "__main__":
-    client = Zclient("dev", 5001, "TEST")
-    client.send("Hello from Python!")
+    client = Zclient("dev", 5001, "ZSERVER")
+    res = client.request("Hello from Python!")
+    print(f"Received reply: {res}, {type(res)}")

@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify, render_template
 import sqlite3
 import datetime
 import threading
-import zmq
 from dbTools.RaptorDB import RaptorDB
+from RaptorLinks.Controller import Controller
 
 app = Flask(__name__)
 raptorDB = RaptorDB()
@@ -24,6 +24,16 @@ def send_message():
     # クライアントからの新しいメッセージを保存
     return jsonify({"status": "Message received"}), 200
 
+@app.route('/send_command', methods=['POST'])
+def send_command():
+    controller = Controller()
+    message    = request.json.get('message')
+    response   = controller.sendMessage(message)
+
+    raptorDB.chatTable.insert(response, 'info')
+
+    return jsonify({"status": "Message received"}), 200
+
 @app.route('/messages', methods=['GET'])
 def get_messages():
     res = raptorDB.chatTable.selectAll()
@@ -41,24 +51,3 @@ def delete_all_messages():
 @app.route('/zmq', methods=['GET'])
 def zmq_page():
     return render_template('zmq.html')
-
-def zmq_server():
-    context = zmq.Context()
-    socket = context.socket(zmq.SUB)
-    socket.bind("tcp://*:5001")
-    topic = "ZIMAGE"
-    socket.setsockopt_string(zmq.SUBSCRIBE, topic)  # サブスクライブするトピックを設定
-
-    while True:
-        message = socket.recv_string()
-        print(f"Received message: {message}")
-
-        # メッセージをパースして必要に応じて処理
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-
-if __name__ == '__main__':
-    raptorDB.init()
-    zmq_thread = threading.Thread(target=zmq_server)
-    zmq_thread.start()
-    # app.run(host='0.0.0.0', port=5000)
