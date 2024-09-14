@@ -14,9 +14,14 @@ class Assistant():
     def __init__(self):
         self.client = OpenAI()
         self.assistantId = os.getenv('OPENAI_ASSISTANT_ID')
-        self.thread = self.client.beta.threads.create()
+        self.debugMode   = os.getenv('OPENAI_DEBUG_MODE', 'false').lower() == 'true'
+        self.thread      = self.client.beta.threads.create()
 
-    def createAndPoll(self, message):
+    def createAndPoll(self, message) -> str:
+        if self.debugMode:
+            print("OpenAI Assistant API : debug mode now")
+            return "debug message"
+
         # Messageの作成
         self.client.beta.threads.messages.create(
             thread_id=self.thread.id,

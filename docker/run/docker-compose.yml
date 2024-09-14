@@ -8,6 +8,7 @@ services:
       - TZ=Asia/Tokyo
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}
+      - OPENAI_DEBUG_MODE=${OPENAI_DEBUG_MODE}
     container_name: 'raptor_chat'
     volumes:
       - ../../src:/home/nomura/
@@ -31,6 +32,7 @@ services:
       - TZ=Asia/Tokyo
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}
+      - OPENAI_DEBUG_MODE=${OPENAI_DEBUG_MODE}
     container_name: 'raptor_chat_dev'
     volumes:
       - ../../src:/home/nomura/
