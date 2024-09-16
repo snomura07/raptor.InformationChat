@@ -20,7 +20,7 @@ class Assistant():
     def createAndPoll(self, message) -> str:
         if self.debugMode:
             print("OpenAI Assistant API : debug mode now")
-            return "debug message"
+            return '{"main_command":"hello","optional_value":[], "optional_string:[]"}'
 
         # Messageの作成
         self.client.beta.threads.messages.create(
@@ -53,6 +53,6 @@ class Assistant():
 
 if __name__ == "__main__":
     assistant = Assistant()
-    assistant.createAndPoll('No14のポートをINPUTに')
-    time.sleep(10)
-    assistant.createAndPoll('No15のポートをOUTPUTに')
+    assistant.createAndPoll('hi')
+    time.sleep(1)
+    assistant.createAndPoll('MasterConfigを取得して')

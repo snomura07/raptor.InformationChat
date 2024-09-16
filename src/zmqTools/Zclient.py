@@ -13,6 +13,12 @@ class Zclient:
 
         # Wait for the server's reply
         reply = self.socket.recv_string()
+        parts = reply.split('$', 1)
+        if len(parts) == 2:
+            reply_topic, reply_message = parts
+            return reply_message
+        else:
+            return reply        
         return reply
 
     def close(self):
