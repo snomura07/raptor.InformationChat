@@ -139,3 +139,10 @@ window.addEventListener('click', function(event) {
         menuList.classList.remove('show');
     }
 });
+
+document.getElementById('message-input').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        document.getElementById('send-button').click();
+    }
+});
